@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pardos Chicken - Sistema de Atención</title>
+  <link rel="stylesheet" href="css/styles.css">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Montserrat:wght@400;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+  <main class="login-layout">
+    <section class="login-visual">
+      <div class="brand-logo">
+        <div class="logo-circle">P</div>
+        <div class="logo-text">
+          <strong>PARDOS</strong>
+          <span>CHICKEN</span>
+        </div>
+      </div>
+      <div class="visual-copy">
+        <span style="color: #fff; opacity: 0.85; display:block; margin-bottom:12px; font-size:0.75rem; font-weight:700; letter-spacing:1.5px;">SISTEMA DE ATENCIÓN</span>
+        <h1>El sabor de siempre, con una atención más ágil.</h1>
+        <p>Gestiona mesas, pedidos y cobros desde un solo lugar.</p>
+      </div>
+      <div class="visual-footer">
+        <span>Control de salón</span>
+        <span style="color: #4ade80;">● Sistema activo</span>
+      </div>
+    </section>
+
+    <section class="login-form-area">
+      <div class="login-card">
+        <span class="welcome-tag">BIENVENIDO</span>
+        <h2>Ingresa tu código</h2>
+        <p class="subtitle">Usa el teclado para acceder a tu turno.</p>
+
+        <div class="pin-box" id="pinBox">
+          <span class="pin-dot"></span><span class="pin-dot"></span><span class="pin-dot"></span>
+          <span class="pin-dot"></span><span class="pin-dot"></span><span class="pin-dot"></span>
+        </div>
+        <p class="pin-helper">4 dígitos para Mozos y 6 dígitos para Administradores</p>
+        <p id="loginError" class="error-msg"></p>
+
+        <div class="keypad-grid">
+          <button type="button" class="key-btn" onclick="pressKey('1')">1</button>
+          <button type="button" class="key-btn" onclick="pressKey('2')">2</button>
+          <button type="button" class="key-btn" onclick="pressKey('3')">3</button>
+          <button type="button" class="key-btn" onclick="pressKey('4')">4</button>
+          <button type="button" class="key-btn" onclick="pressKey('5')">5</button>
+          <button type="button" class="key-btn" onclick="pressKey('6')">6</button>
+          <button type="button" class="key-btn" onclick="pressKey('7')">7</button>
+          <button type="button" class="key-btn" onclick="pressKey('8')">8</button>
+          <button type="button" class="key-btn" onclick="pressKey('9')">9</button>
+          <button type="button" class="key-btn key-clear" onclick="clearPin()">LIMPIAR</button>
+          <button type="button" class="key-btn" onclick="pressKey('0')">0</button>
+          <button type="button" class="key-btn key-delete" onclick="deleteDigit()">BORRAR</button>
+        </div>
+
+        <form action="LoginControlador" method="POST">
+          <input type="hidden" name="accion" value="login">
+          <input type="hidden" name="pin" id="hiddenPinInput" value="">
+          <button type="submit" id="btnSubmitPin" class="btn-ingresar" disabled>Ingresar →</button>
+        </form>
+
+        <div class="register-prompt">
+          <span>¿Nuevo integrante del equipo?</span>
+          <a onclick="toggleModalRegistro(true)">Registrar usuario</a>
+        </div>
+        <div class="demo-credentials">
+          <small><strong>PINs de prueba:</strong> Mozo: <code>1234</code> | Admin: <code>123456</code></small>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <div id="modal-registro" class="modal-overlay hidden">
+    <div class="modal-card">
+      <h3 style="font-family: 'Montserrat', sans-serif; font-size:1.4rem;">Registro de Personal</h3>
+      <p style="font-size:0.85rem; color:var(--muted);">Crea tu código de acceso para el turno.</p>
+      <form action="LoginControlador" method="POST">
+        <input type="hidden" name="accion" value="registrar">
+        <label style="font-size:0.85rem; font-weight:600;">Nombre completo</label>
+        <input type="text" name="nombre" placeholder="Ej. Carlos Mendoza" required>
+        
+        <label style="font-size:0.85rem; font-weight:600;">Rol en salón</label>
+        <select name="rol" id="regRol" onchange="actualizarPlaceholderPin()">
+          <option value="Mozo">Mozo (PIN de 4 dígitos)</option>
+          <option value="Administrador">Administrador (PIN de 6 dígitos)</option>
+        </select>
+
+        <label style="font-size:0.85rem; font-weight:600;">Código PIN asignado</label>
+        <input type="text" name="pin" id="regPin" pattern="[0-9]{4}" maxlength="4" placeholder="Ej. 4321" required>
+
+        <div class="modal-actions">
+          <button type="button" class="btn-secondary" onclick="toggleModalRegistro(false)">Cancelar</button>
+          <button type="submit" class="btn-primary">Guardar en Sistema</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="js/app.js"></script>
+</body>
+</html>

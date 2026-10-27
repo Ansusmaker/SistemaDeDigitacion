@@ -1,0 +1,474 @@
+@import url("https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Montserrat:wght@400;600;700;800&display=swap");
+
+:root {
+  font-family: "DM Sans", sans-serif;
+  color: #171717;
+  background: #f6f4f1;
+  --red: #b51224;
+  --red-dark: #8e0814;
+  --red-bright: #db1738;
+  --muted: #6f6b67;
+  --line: #e7e2dc;
+  --paper: #ffffff;
+  --canvas: #f8f9fa;
+  --shadow: 0 18px 48px rgba(31, 22, 18, 0.09);
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  min-height: 100vh;
+  background-color: var(--canvas);
+  color: #171717;
+}
+
+.hidden {
+  display: none !important;
+}
+
+.login-layout {
+  display: grid;
+  grid-template-columns: 1.1fr 1fr;
+  min-height: 100vh;
+}
+
+.login-visual {
+  background: radial-gradient(circle at 80% 30%, #ffffff1f, transparent 25%),
+              linear-gradient(145deg, #8e0814 0%, var(--red) 58%, #db1738 100%);
+  color: #fff;
+  padding: 60px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.brand-logo {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.logo-circle {
+  width: 48px;
+  height: 48px;
+  border: 2px solid #fff;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-weight: 800;
+  font-size: 1.3rem;
+  font-family: "Montserrat", sans-serif;
+}
+
+.logo-text {
+  display: flex;
+  flex-direction: column;
+}
+
+.logo-text strong {
+  font-size: 1.35rem;
+  letter-spacing: 2px;
+  font-family: "Montserrat", sans-serif;
+}
+
+.logo-text span {
+  font-size: 0.65rem;
+  letter-spacing: 3px;
+  opacity: 0.9;
+}
+
+.visual-copy h1 {
+  font-size: 2.8rem;
+  font-family: "Montserrat", sans-serif;
+  font-weight: 800;
+  line-height: 1.15;
+  margin-bottom: 16px;
+}
+
+.visual-copy p {
+  font-size: 1.05rem;
+  opacity: 0.9;
+}
+
+.visual-footer {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.8rem;
+  opacity: 0.8;
+  border-top: 1px solid rgba(255,255,255,0.2);
+  padding-top: 20px;
+}
+
+.login-form-area {
+  background: var(--paper);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px;
+}
+
+.login-card {
+  width: 100%;
+  max-width: 380px;
+}
+
+.welcome-tag {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--red);
+  letter-spacing: 1.5px;
+  font-family: "Montserrat", sans-serif;
+}
+
+.login-card h2 {
+  font-size: 2rem;
+  font-family: "Montserrat", sans-serif;
+  font-weight: 800;
+  margin: 6px 0;
+}
+
+.subtitle {
+  color: var(--muted);
+  font-size: 0.9rem;
+  margin-bottom: 24px;
+}
+
+.pin-box {
+  background: var(--canvas);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+}
+
+.pin-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  border: 2px solid #cbd5e1;
+  transition: all 0.15s;
+}
+
+.pin-dot.filled {
+  background-color: var(--red);
+  border-color: var(--red);
+  transform: scale(1.2);
+}
+
+.pin-helper {
+  text-align: center;
+  font-size: 0.75rem;
+  color: var(--muted);
+  margin: 10px 0 20px;
+}
+
+.error-msg {
+  color: var(--red);
+  font-size: 0.82rem;
+  text-align: center;
+  min-height: 20px;
+  margin-bottom: 8px;
+  font-weight: 600;
+}
+
+.keypad-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.key-btn {
+  height: 52px;
+  border-radius: 10px;
+  border: 1px solid var(--line);
+  background: var(--paper);
+  font-size: 1.2rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.1s;
+}
+
+.key-btn:hover {
+  background: var(--canvas);
+}
+
+.key-clear, .key-delete {
+  font-size: 0.75rem;
+  color: var(--muted);
+  font-weight: 700;
+}
+
+.btn-ingresar {
+  width: 100%;
+  height: 50px;
+  border: none;
+  border-radius: 10px;
+  background: #d6d3d1;
+  color: #fff;
+  font-size: 0.95rem;
+  font-weight: 700;
+  cursor: not-allowed;
+  transition: background 0.2s;
+}
+
+.btn-ingresar.ready {
+  background: var(--red);
+  cursor: pointer;
+}
+
+.register-prompt {
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+  margin-top: 18px;
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+
+.register-prompt a {
+  color: var(--red);
+  font-weight: 700;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.demo-credentials {
+  margin-top: 16px;
+  padding: 10px;
+  background: #fef2f2;
+  border-radius: 8px;
+  text-align: center;
+  color: #991b1b;
+  font-size: 0.78rem;
+}
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.6);
+  display: grid;
+  place-items: center;
+  z-index: 100;
+}
+
+.modal-card {
+  background: var(--paper);
+  padding: 30px;
+  border-radius: 16px;
+  width: 100%;
+  max-width: 400px;
+  box-shadow: var(--shadow);
+}
+
+.modal-card form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 14px;
+}
+
+.modal-card input, .modal-card select {
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  font-family: inherit;
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.btn-secondary {
+  background: var(--line);
+  border: none;
+  padding: 10px 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.btn-primary {
+  background: var(--red);
+  color: #fff;
+  border: none;
+  padding: 10px 16px;
+  border-radius: 8px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.app-layout {
+  display: grid;
+  grid-template-columns: 260px 1fr;
+  min-height: 100vh;
+}
+
+.sidebar {
+  background: #171717;
+  color: #fff;
+  padding: 30px 20px;
+  display: flex;
+  flex-direction: column;
+}
+
+.sidebar-logo {
+  margin-bottom: 30px;
+}
+
+.user-Session {
+  background: rgba(255,255,255,0.08);
+  padding: 12px;
+  border-radius: 10px;
+  margin-bottom: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.role-badge {
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: #fca5a5;
+  letter-spacing: 1px;
+}
+
+.side-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex: 1;
+}
+
+.nav-item {
+  background: transparent;
+  border: none;
+  color: #a1a1aa;
+  text-align: left;
+  padding: 12px;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.nav-item.active, .nav-item:hover {
+  background: var(--red);
+  color: #fff;
+}
+
+.btn-logout {
+  background: rgba(255,255,255,0.1);
+  color: #fff;
+  border: none;
+  padding: 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  margin-top: auto;
+  text-align: center;
+  text-decoration: none;
+}
+
+.app-content {
+  padding: 40px;
+}
+
+.pane-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px;
+}
+
+.tables-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 20px;
+}
+
+.table-card {
+  background: var(--paper);
+  border: 2px solid var(--line);
+  border-radius: 14px;
+  padding: 24px;
+  cursor: pointer;
+  box-shadow: var(--shadow);
+  transition: transform 0.15s;
+}
+
+.table-card:hover {
+  transform: translateY(-3px);
+}
+
+.table-card.ocupada { border-color: #f59e0b; background: #fffbeb; }
+.table-card.cobrar { border-color: var(--red); background: #fef2f2; }
+
+.pos-layout {
+  display: grid;
+  grid-template-columns: 1.5fr 1fr;
+  gap: 24px;
+}
+
+.menu-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+  gap: 16px;
+  align-content: start;
+}
+
+.menu-card {
+  background: var(--paper);
+  padding: 18px;
+  border-radius: 12px;
+  border: 1px solid var(--line);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 12px;
+  box-shadow: var(--shadow);
+}
+
+.order-summary {
+  background: var(--paper);
+  padding: 24px;
+  border-radius: 14px;
+  border: 1px solid var(--line);
+  box-shadow: var(--shadow);
+}
+
+.order-list {
+  list-style: none;
+  margin: 16px 0;
+  max-height: 350px;
+  overflow-y: auto;
+}
+
+.order-list li {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 0;
+  border-bottom: 1px dashed var(--line);
+  font-size: 0.9rem;
+}
+
+.order-total {
+  display: flex;
+  justify-content: space-between;
+  font-size: 1.25rem;
+  margin: 18px 0;
+  font-family: "Montserrat", sans-serif;
+  font-weight: 700;
+}
+
+.full-width { width: 100%; }
