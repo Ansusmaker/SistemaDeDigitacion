@@ -17,22 +17,20 @@ public class ComandaControlador extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         String accion = req.getParameter("accion");
-        
-        // Validación cuando el Mozo intenta eliminar usando el PIN de Admin desde el Modal
-        if ("eliminarConAuth".equals(accion)) {
-            String pinAdmin = req.getParameter("pinAdmin");
-            
-            // Validamos en la base de datos si el PIN corresponde a un Administrador
-            Usuario adminValidado = dao.validarPin(pinAdmin);
-            
-            if (adminValidado != null && !"BLOQUEADO".equals(adminValidado.getRol())) {
-                // PIN correcto -> Autorizado para eliminar
-                // Aquí puedes ejecutar la lógica de borrado en base de datos si lo deseas
+
+        if ("eliminarItem".equals(accion)) {
+            String adminPin = req.getParameter("adminPin");
+            Usuario u = dao.validarPin(adminPin);
+
+            // Validamos que el PIN exista y pertenezca a un Administrador
+            if (u != null && "Administrador".equalsIgnoreCase(u.getRol())) {
                 resp.sendRedirect("sistema.jsp?eliminado=ok");
             } else {
-                // PIN incorrecto o inválido
                 resp.sendRedirect("sistema.jsp?error=pin_invalido");
             }
+        } else {
+             // Redirección por defecto si la acción no coincide
+             resp.sendRedirect("sistema.jsp");
         }
     }
 }

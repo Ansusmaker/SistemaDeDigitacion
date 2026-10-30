@@ -17,9 +17,9 @@ public class Conexion {
                 Class.forName("com.mysql.cj.jdbc.Driver");
                 instancia = DriverManager.getConnection(URL);
             }
-        } catch (ClassNotFoundException | SQLException e) {
-            System.out.println("Error en la conexión Cloud: " + e.getMessage());
-        }
-        return instancia;
+        } catch (Exception e) {
+                System.out.println("Error en la conexión cloud: " + e.getMessage());
+            }
+            return instancia;
     }
 }
