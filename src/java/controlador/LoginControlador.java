@@ -22,10 +22,20 @@ public class LoginControlador extends HttpServlet {
             String pin = req.getParameter("pin");
             Usuario user = dao.validarPin(pin);
             
+            // Si retorna un usuario con rol BLOQUEADO
+            if (user != null && "BLOQUEADO".equals(user.getRol())) {
+                resp.sendRedirect("index.html?error=bloqueado");
+                return;
+            }
+            
             if (user != null) {
+                // Si entra bien, reseteamos los intentos a 0
+                dao.reiniciarIntentos(pin);
                 req.getSession().setAttribute("usuarioActual", user);
                 resp.sendRedirect("sistema.jsp");
             } else {
+                // Si el PIN no existe o falló, incrementamos los intentos para ese PIN si existe en la BD
+                dao.incrementarIntentoOFallar(pin);
                 resp.sendRedirect("index.html?error=1");
             }
         } else if ("registrar".equals(accion)) {

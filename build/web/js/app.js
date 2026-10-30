@@ -28,6 +28,7 @@ window.addEventListener("DOMContentLoaded", () => {
     if (errorEl) {
         if (params.get("error") === "1") errorEl.textContent = "Código PIN incorrecto. Intenta de nuevo.";
         if (params.get("error") === "duplicado") errorEl.textContent = "Ese código PIN ya está en uso.";
+        if (params.get("error") === "bloqueado") errorEl.textContent = "Cuenta bloqueada temporalmente por 3 intentos fallidos. Inténtalo más tarde.";
         if (params.get("registro") === "ok") {
             errorEl.style.color = "#16835b";
             errorEl.textContent = "¡Personal registrado con éxito! Ingresa tu nuevo PIN.";
@@ -138,7 +139,7 @@ function renderCarta() {
 function agregarPlato(platoId) {
     const plato = cartaPardos.find(p => p.id === platoId);
     const mesa = mesas.find(m => m.id === mesaSeleccionada);
-    mesa.pedido.push({ ...plato });
+    mesa.pedido.push({ ...plato, uniqueId: Date.now() + Math.random() }); // ID único para facilitar el borrado
     if (mesa.estado === "libre") mesa.estado = "ocupada";
     renderPedidosMesa();
 }
@@ -147,16 +148,24 @@ function renderPedidosMesa() {
     const mesa = mesas.find(m => m.id === mesaSeleccionada);
     const list = document.getElementById("orderList");
     if (!list) return;
+    
     list.innerHTML = mesa.pedido.map((item, index) => `
-        <li>
-          <span><strong style="margin-right: 6px;">${index + 1}.</strong> ${item.nombre || item.name}</span>
-          <strong style="margin-left:12px;">S/ ${item.precio.toFixed(2)}</strong>
+        <li class="d-flex justify-content-between align-items-center mb-2" style="font-size: 0.9rem;">
+            <span><strong style="margin-right: 6px;">${index + 1}.</strong> ${item.nombre || item.name} (S/ ${item.precio.toFixed(2)})</span>
+            <button class="btn btn-sm btn-outline-danger py-0 px-2" onclick="intentarEliminarItem('${item.uniqueId}')" style="font-size: 0.8rem;">Eliminar</button>
         </li>
     `).join("") || "<li><span style='color:var(--muted);'>Comanda vacía</span></li>";
 
     const total = mesa.pedido.reduce((acc, item) => acc + item.precio, 0);
     const totalEl = document.getElementById("orderTotalAmount");
     if(totalEl) totalEl.textContent = `S/ ${total.toFixed(2)}`;
+}
+
+// Función auxiliar para eliminar de la simulación frontend (puedes adaptarla cuando conectes con tu base de datos)
+function eliminarItemLocal(uniqueId) {
+    const mesa = mesas.find(m => m.id === mesaSeleccionada);
+    mesa.pedido = mesa.pedido.filter(item => item.uniqueId != uniqueId);
+    renderPedidosMesa();
 }
 
 function enviarACocina() {

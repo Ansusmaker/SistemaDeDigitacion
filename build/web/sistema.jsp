@@ -14,6 +14,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Pardos Chicken - Panel de Control</title>
     <link rel="stylesheet" href="css/styles.css">
+    <!-- Bootstrap CSS para los Modales de seguridad -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Montserrat:wght@400;600;700;800&display=swap" rel="stylesheet">
 </head>
 <body>
@@ -84,6 +86,54 @@
             </div>
         </section>
     </div>
+
+    <!-- MODAL DE AUTORIZACIÓN ADMINISTRADOR PARA ELIMINAR -->
+    <div class="modal fade" id="modalAdminAuth" tabindex="-1" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title fw-bold text-danger">Autorización de Administrador Requerida</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <form action="ComandaControlador" method="POST">
+              <div class="modal-body">
+                  <input type="hidden" name="accion" value="eliminarConAuth">
+                  <input type="hidden" id="idItemEliminar" name="idItem">
+                  <p class="text-muted">Estás operando como <strong>Mozo</strong>. Para eliminar ítems de la comanda, ingresa el PIN de un Administrador:</p>
+                  <div class="mb-3">
+                      <label class="form-label fw-semibold">PIN del Administrador:</label>
+                      <input type="password" class="form-control" name="pinAdmin" placeholder="Ingresa PIN" required autocomplete="off">
+                  </div>
+              </div>
+              <div class="modal-footer">
+                  <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                  <button type="submit" class="btn btn-danger">Autorizar y Eliminar</button>
+              </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- Scripts de la app y Bootstrap JS para el modal -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Rol del usuario actual inyectado desde la sesión Java
+        const rolUsuario = "<%= user.getRol() %>";
+
+        // Función global de validación para el botón eliminar de la comanda
+        function intentarEliminarItem(idItem) {
+            if (rolUsuario === "Administrador") {
+                if (confirm("¿Estás seguro de eliminar este ítem de la comanda?")) {
+                    window.location.href = "ComandaControlador?accion=eliminarDirecto&idItem=" + idItem;
+                }
+            } else {
+                // Si es mozo, abre el modal pidiendo credenciales de admin
+                document.getElementById("idItemEliminar").value = idItem;
+                var adminModal = new bootstrap.Modal(document.getElementById('modalAdminAuth'));
+                adminModal.show();
+            }
+        }
+    </script>
     <script src="js/app.js"></script>
 </body>
 </html>
