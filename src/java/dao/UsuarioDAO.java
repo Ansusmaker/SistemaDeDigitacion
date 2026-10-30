@@ -22,29 +22,33 @@ public class UsuarioDAO {
                 if (rs.next()) {
                     String nombre = rs.getString("NombreCompleto");
                     String codigo = rs.getString("Codigo");
+                    
+                    // Obtenemos el rol de la base de datos (si está vacío, se define por los dígitos)
+                    String rol = rs.getString("rol");
+                    if (rol == null || rol.trim().isEmpty()) {
+                        rol = (codigo.length() == 6) ? "Administrador" : "Mozo";
+                    }
+                    
                     String estado = rs.getString("estado");
                     Timestamp ultimoBloqueoTS = rs.getTimestamp("ultimo_bloqueo");
                     
-                    // 1. VERIFICAR SI ESTÁ BLOQUEADO Y SI YA PASARON 5 MINUTOS
+                    // 1. Verificar si está bloqueado y si aún no pasan los 5 minutos
                     if ("BLOQUEADO".equals(estado) && ultimoBloqueoTS != null) {
                         LocalDateTime ahora = LocalDateTime.now();
                         LocalDateTime ultimoBloqueo = ultimoBloqueoTS.toLocalDateTime();
                         long minutosTranscurridos = ChronoUnit.MINUTES.between(ultimoBloqueo, ahora);
                         
                         if (minutosTranscurridos < 5) {
-                            // Sigue bloqueado
                             Usuario bloqueado = new Usuario(nombre, "BLOQUEADO", codigo);
                             return bloqueado;
                         } else {
                             // Ya pasaron los 5 minutos -> Desbloquear automáticamente
                             reiniciarIntentos(codigo);
-                            estado = "ACTIVO";
                         }
                     }
                     
-                    if (!"BLOQUEADO".equals(estado)) {
-                        u = new Usuario(nombre, "Administrador", codigo);
-                    }
+                    // Si todo está correcto, devolvemos el usuario con su rol
+                    u = new Usuario(nombre, rol, codigo);
                 }
             }
         } catch (SQLException e) {
@@ -101,15 +105,22 @@ public class UsuarioDAO {
             return false; 
         }
 
-        String sql = "INSERT INTO personal (NombreCompleto, Codigo, intentos, estado) VALUES (?, ?, 0, 'ACTIVO')";
+        // Regla automática: 6 dígitos = Administrador, 4 dígitos = Mozo
+        String rolAutomatico = "Mozo";
+        if (nuevo.getPin() != null && nuevo.getPin().length() == 6) {
+            rolAutomatico = "Administrador";
+        }
+
+        String sql = "INSERT INTO personal (NombreCompleto, Codigo, rol, intentos, estado) VALUES (?, ?, ?, 0, 'ACTIVO')";
         try (Connection con = Conexion.obtenerConexion();
              PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setString(1, nuevo.getNombre()); 
             ps.setString(2, nuevo.getPin());
+            ps.setString(3, rolAutomatico);
             return ps.executeUpdate() > 0;
         } catch (SQLException e) {
             System.out.println("Error al registrar: " + e.getMessage());
             return false;
         }
     }
-}
+}   

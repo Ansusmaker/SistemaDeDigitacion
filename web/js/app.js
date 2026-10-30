@@ -14,7 +14,8 @@ const cartaPardos = [
   { id: 12, nombre: "Limonada", precio: 9.90, category: "Bebidas" }
 ];
 
-const mesas = Array.from({ length: 10 }, (_, index) => ({
+// Cargamos las mesas desde localStorage si existen, sino se crean por defecto
+let mesas = JSON.parse(localStorage.getItem("pardos_mesas")) || Array.from({ length: 10 }, (_, index) => ({
   id: index + 1,
   numero: `Mesa 0${index + 1}`.slice(-7),
   capacidad: "4 personas",
@@ -22,16 +23,43 @@ const mesas = Array.from({ length: 10 }, (_, index) => ({
   pedido: []
 }));
 
+function guardarMesasStorage() {
+    localStorage.setItem("pardos_mesas", JSON.stringify(mesas));
+}
+
 window.addEventListener("DOMContentLoaded", () => {
     const params = new URLSearchParams(window.location.search);
     const errorEl = document.getElementById("loginError");
+    
     if (errorEl) {
         if (params.get("error") === "1") errorEl.textContent = "Código PIN incorrecto. Intenta de nuevo.";
         if (params.get("error") === "duplicado") errorEl.textContent = "Ese código PIN ya está en uso.";
         if (params.get("error") === "bloqueado") errorEl.textContent = "Cuenta bloqueada temporalmente por 3 intentos fallidos. Inténtalo más tarde.";
+        if (params.get("error") === "pin_invalido") errorEl.textContent = "PIN de Administrador incorrecto. No se pudo eliminar.";
         if (params.get("registro") === "ok") {
             errorEl.style.color = "#16835b";
             errorEl.textContent = "¡Personal registrado con éxito! Ingresa tu nuevo PIN.";
+        }
+    }
+
+    // Si el PIN del admin fue correcto y regresa con ?eliminado=ok, ejecutamos el borrado pendiente
+    if (params.get("eliminado") === "ok") {
+        const pendingIndex = localStorage.getItem("pendingDeleteIndex");
+        const pendingMesa = localStorage.getItem("pendingDeleteMesa");
+        if (pendingIndex !== null && pendingMesa !== null) {
+            mesaSeleccionada = parseInt(pendingMesa);
+            const mesa = mesas.find(m => m.id === mesaSeleccionada);
+            if (mesa && mesa.pedido) {
+                mesa.pedido.splice(parseInt(pendingIndex), 1);
+                if (mesa.pedido.length === 0) mesa.estado = "libre";
+                guardarMesasStorage();
+            }
+            localStorage.removeItem("pendingDeleteIndex");
+            localStorage.removeItem("pendingDeleteMesa");
+        }
+        if (errorEl) {
+            errorEl.style.color = "#16835b";
+            errorEl.textContent = "¡Ítem eliminado con autorización del Administrador!";
         }
     }
 
@@ -118,10 +146,10 @@ function renderMesas() {
 
 function abrirMesa(id) {
     mesaSeleccionada = id;
-    const mesa = mesas.find(m => m.id === id);
     const label = document.getElementById("currentTableLabel");
     if(label) label.textContent = `(Mesa ${id})`;
     switchTab("pedidos", document.querySelectorAll(".nav-item")[1]);
+    renderPedidosMesa();
 }
 
 function renderCarta() {
@@ -139,8 +167,9 @@ function renderCarta() {
 function agregarPlato(platoId) {
     const plato = cartaPardos.find(p => p.id === platoId);
     const mesa = mesas.find(m => m.id === mesaSeleccionada);
-    mesa.pedido.push({ ...plato, uniqueId: Date.now() + Math.random() }); // ID único para facilitar el borrado
+    mesa.pedido.push({ ...plato });
     if (mesa.estado === "libre") mesa.estado = "ocupada";
+    guardarMesasStorage();
     renderPedidosMesa();
 }
 
@@ -150,9 +179,9 @@ function renderPedidosMesa() {
     if (!list) return;
     
     list.innerHTML = mesa.pedido.map((item, index) => `
-        <li class="d-flex justify-content-between align-items-center mb-2" style="font-size: 0.9rem;">
+        <li class="d-flex justify-content-between align-items-center mb-2" style="font-size: 0.9rem; display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
             <span><strong style="margin-right: 6px;">${index + 1}.</strong> ${item.nombre || item.name} (S/ ${item.precio.toFixed(2)})</span>
-            <button class="btn btn-sm btn-outline-danger py-0 px-2" onclick="intentarEliminarItem('${item.uniqueId}')" style="font-size: 0.8rem;">Eliminar</button>
+            <button class="btn btn-sm btn-danger py-0 px-2" onclick="intentarEliminarItem(${index})" style="background-color: var(--red); color: white; border: none; padding: 2px 8px; border-radius: 4px; cursor: pointer; font-size: 0.8rem;">Eliminar</button>
         </li>
     `).join("") || "<li><span style='color:var(--muted);'>Comanda vacía</span></li>";
 
@@ -161,17 +190,41 @@ function renderPedidosMesa() {
     if(totalEl) totalEl.textContent = `S/ ${total.toFixed(2)}`;
 }
 
-// Función auxiliar para eliminar de la simulación frontend (puedes adaptarla cuando conectes con tu base de datos)
-function eliminarItemLocal(uniqueId) {
+// Validación de rol para eliminar individualmente
+function intentarEliminarItem(indexItem) {
+    if (rolUsuario === "Administrador" || rolUsuario === "ADMINISTRADOR") {
+        if (confirm("¿Estás seguro de eliminar este ítem de la comanda?")) {
+            eliminarItemLocal(indexItem);
+        }
+    } else {
+        // Si es Mozo, guardamos qué mesa e índice se quieren borrar en localStorage antes de abrir el modal
+        localStorage.setItem("pendingDeleteIndex", indexItem);
+        localStorage.setItem("pendingDeleteMesa", mesaSeleccionada);
+        
+        var adminModal = new bootstrap.Modal(document.getElementById('modalAdminAuth'));
+        adminModal.show();
+    }
+}
+
+// Elimina únicamente el ítem seleccionado según su índice y actualiza el almacenamiento
+function eliminarItemLocal(index) {
     const mesa = mesas.find(m => m.id === mesaSeleccionada);
-    mesa.pedido = mesa.pedido.filter(item => item.uniqueId != uniqueId);
-    renderPedidosMesa();
+    if (mesa && mesa.pedido) {
+        mesa.pedido.splice(index, 1);
+        if (mesa.pedido.length === 0) {
+            mesa.estado = "libre";
+        }
+        guardarMesasStorage();
+        renderPedidosMesa();
+        renderMesas();
+    }
 }
 
 function enviarACocina() {
     const mesa = mesas.find(m => m.id === mesaSeleccionada);
     if (mesa.pedido.length === 0) return alert("Agrega al menos un plato a la mesa.");
     mesa.estado = "cobrar";
+    guardarMesasStorage();
     alert(`${mesa.numero} enviada a cocina y lista para cobro.`);
     switchTab("cobros", document.querySelectorAll(".nav-item")[2]);
 }
@@ -201,6 +254,8 @@ function liquidarMesa(id) {
     const mesa = mesas.find(m => m.id === id);
     mesa.pedido = [];
     mesa.estado = "libre";
+    guardarMesasStorage();
     renderCobros();
+    renderMesas();
     alert(`Mesa ${id} cobrada y liberada.`);
 }
