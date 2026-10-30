@@ -1,6 +1,5 @@
 package controlador;
 
-import dao.UsuarioDAO;
 import java.io.IOException;
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -9,11 +8,14 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import modelo.Usuario;
+import repository.UsuarioRepository;
+import repository.UsuarioRepositoryImpl;
 
 @WebServlet(name = "LoginControlador", urlPatterns = {"/LoginControlador"})
 public class LoginControlador extends HttpServlet {
 
-    private final UsuarioDAO usuarioDAO = new UsuarioDAO();
+    // Instancia mediante la interfaz del Patrón Repository
+    private final UsuarioRepository usuarioRepo = new UsuarioRepositoryImpl();
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
@@ -21,7 +23,7 @@ public class LoginControlador extends HttpServlet {
 
         if ("login".equals(accion)) {
             String pin = req.getParameter("pin");
-            Usuario user = usuarioDAO.validarPin(pin);
+            Usuario user = usuarioRepo.autenticar(pin);
 
             if (user != null) {
                 HttpSession session = req.getSession();
@@ -35,7 +37,8 @@ public class LoginControlador extends HttpServlet {
             String rol = req.getParameter("rol");
             String pin = req.getParameter("pin");
 
-            boolean ok = usuarioDAO.registrarUsuario(nombre, rol, pin);
+            Usuario nuevo = new Usuario(0, nombre, pin, 0, "ACTIVO", rol);
+            boolean ok = usuarioRepo.registrar(nuevo);
             if (ok) {
                 resp.sendRedirect("index.html?registro=ok");
             } else {
